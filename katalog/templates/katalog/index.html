@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Katalog Gier</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background: #f4f4f9; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; }
+        .game-card { background: white; padding: 15px; margin-top: 10px; border-radius: 5px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .loading { color: blue; }
+        .error { color: red; }
+    </style>
+</head>
+<body>
+    <h1>Katalog Gier</h1>
+    <p>Witaj w aplikacji do zarządzania kolekcją gier przez API!</p>
+    
+    <label for="filterSelect">Filtruj dostępność:</label>
+    <select id="filterSelect">
+        <option value="">Wszystkie</option>
+        <option value="true">Dostępne</option>
+        <option value="false">Niedostępne</option>
+    </select>
+    <button id="loadBtn">Wczytaj dane</button>
+
+    <div id="loadingMessage"></div>
+    <div id="errorMessage"></div>
+    <div id="results"></div>
+
+    <script>
+    const loadBtn = document.getElementById('loadBtn');
+    const resultsDiv = document.getElementById('results');
+    const loadingDiv = document.getElementById('loadingMessage');
+    const errorDiv = document.getElementById('errorMessage');
+    const filterSelect = document.getElementById('filterSelect');
+
+    loadBtn.addEventListener('click', () => {
+        
+        resultsDiv.innerHTML = '';
+        errorDiv.textContent = '';
+        loadingDiv.textContent = 'Ładowanie danych...';
+
+        const dostepnaVal = filterSelect.value;
+        let url = '/api/gry/';
+        if (dostepnaVal !== '') {
+            url += `?dostepna=${dostepnaVal}`;
+        }
+
+        fetch(url)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Błąd serwera: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                loadingDiv.textContent = ''; 
+                const items = data.items;
+
+                if (items.length === 0) {
+                    resultsDiv.textContent = 'Brak rekordów do wyświetlenia.';
+                    return;
+                }
+
+                items.forEach(gra => {
+                    const card = document.createElement('div');
+                    card.className = 'game-card';
+
+                    const title = document.createElement('h3');
+                    title.textContent = gra.tytul; 
+
+                    const details = document.createElement('p');
+                    details.textContent = `Gatunek: ${gra.gatunek} | Ocena: ${gra.ocena}/10 | Dostępna: ${gra.dostepna ? 'Tak' : 'Nie'}`;
+
+                    card.appendChild(title);
+                    card.appendChild(details);
+                    resultsDiv.appendChild(card);
+                });
+            })
+            .catch(error => {
+                loadingDiv.textContent = '';
+                errorDiv.textContent = 'Wystąpił błąd: ' + error.message;
+            });
+    });
+</script>
+</body>
+</html>
