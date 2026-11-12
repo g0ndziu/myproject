@@ -8,6 +8,8 @@ class Gra(models.Model):
     cena = models.DecimalField(max_digits=6, decimal_places=2)
     dostepna = models.BooleanField(default=True)
     data_wydania = models.DateField(null=True, blank=True)
+    wydawca = models.CharField(default="", max_length=100)
+    opis = models.CharField(default="", max_length=1000)
 
     def __str__(self):
         return f"{self.tytul} ({self.gatunek})"

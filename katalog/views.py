@@ -7,8 +7,8 @@ def index(request):
 
 def api_gry(request):
     dostepna_param = request.GET.get('dostepna')
-
-    gry = Gra.objects.all()
+    gry = Gra.objects.all().order_by('tytul')
+    
     if dostepna_param == 'true':
         gry = gry.filter(dostepna=True)
     elif dostepna_param == 'false':
@@ -21,6 +21,8 @@ def api_gry(request):
             "tytul": g.tytul,
             "gatunek": g.gatunek,
             "ocena": g.ocena,
-            "dostepna": g.dostepna
+            "dostepna": g.dostepna,
+            "wydawca": g.wydawca,
+            "opis": g.opis,
         })
     return JsonResponse({"items": data})
